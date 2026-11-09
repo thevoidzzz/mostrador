@@ -1,0 +1,26 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: mostrador
+      POSTGRES_PASSWORD: mostrador
+      POSTGRES_DB: mostrador
+    ports:
+      - "5435:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mostrador -d mostrador"]
+      interval: 2s
+      timeout: 5s
+      retries: 20
+
+  mostrador:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mostrador
+      SPRING_DATASOURCE_USERNAME: mostrador
+      SPRING_DATASOURCE_PASSWORD: mostrador
+    ports:
+      - "8080:8080"
