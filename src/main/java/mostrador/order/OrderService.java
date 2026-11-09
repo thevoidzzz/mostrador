@@ -20,4 +20,15 @@ public final class OrderService {
     }
     return orders.save(Order.received(code, item, price));
   }
+
+  public Order deliver(String code) {
+    if (code == null || code.isBlank()) {
+      throw OrderRejection.invalidOrder();
+    }
+    Order current = orders.findByCode(code).orElseThrow(OrderRejection::unknownOrder);
+    if (current.status() == OrderStatus.DELIVERED) {
+      throw OrderRejection.alreadyDelivered();
+    }
+    return orders.save(current.delivered());
+  }
 }

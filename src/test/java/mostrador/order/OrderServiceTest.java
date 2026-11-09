@@ -74,4 +74,37 @@ class OrderServiceTest {
 
     assertEquals(OrderRejection.ALREADY_REGISTERED, rejection.code());
   }
+
+  @Test
+  void deliversAReceivedOrder() {
+    when(orders.findByCode("A1")).thenReturn(Optional.of(Order.received("A1", "coffee", "4.50")));
+    when(orders.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+    Order order = service.deliver("A1");
+
+    assertEquals("A1", order.code());
+    assertEquals("coffee", order.item());
+    assertEquals("4.50", order.price());
+    assertEquals(OrderStatus.DELIVERED, order.status());
+    assertEquals("delivered", order.status().text());
+  }
+
+  @Test
+  void rejectsASecondDelivery() {
+    when(orders.findByCode("A1"))
+        .thenReturn(Optional.of(new Order("A1", "coffee", "4.50", OrderStatus.DELIVERED)));
+
+    OrderRejection rejection = assertThrows(OrderRejection.class, () -> service.deliver("A1"));
+
+    assertEquals(OrderRejection.ALREADY_DELIVERED, rejection.code());
+  }
+
+  @Test
+  void rejectsAnUnknownCode() {
+    when(orders.findByCode("missing")).thenReturn(Optional.empty());
+
+    OrderRejection rejection = assertThrows(OrderRejection.class, () -> service.deliver("missing"));
+
+    assertEquals(OrderRejection.UNKNOWN_ORDER, rejection.code());
+  }
 }
