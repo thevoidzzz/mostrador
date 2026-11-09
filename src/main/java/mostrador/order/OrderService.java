@@ -1,7 +1,9 @@
 package mostrador.order;
 
 import mostrador.menu.Menu;
+import org.springframework.stereotype.Service;
 
+@Service
 public final class OrderService {
 
   private final OrderRepository orders;

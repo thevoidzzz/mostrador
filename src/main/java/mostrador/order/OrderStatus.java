@@ -9,4 +9,8 @@ public enum OrderStatus {
   public String text() {
     return name().toLowerCase(Locale.ROOT);
   }
+
+  public static OrderStatus fromText(String text) {
+    return OrderStatus.valueOf(text.toUpperCase(Locale.ROOT));
+  }
 }
